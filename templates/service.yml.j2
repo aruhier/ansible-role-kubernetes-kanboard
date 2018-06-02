@@ -1,0 +1,11 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ kubernetes_kanboard_service }}
+  namespace: {{ kubernetes_kanboard_namespace }}
+spec:
+  selector:
+    app: {{ kubernetes_kanboard_app }}
+  ports:
+    - port: 80
+      targetPort: kanboard

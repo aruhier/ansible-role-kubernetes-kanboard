@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ kubernetes_kanboard_ingress.name }}
+  namespace: {{ kubernetes_kanboard_namespace }}
+{% if kubernetes_kanboard_ingress.annotations %}
+  annotations:
+    {{ kubernetes_kanboard_ingress.annotations | to_nice_yaml | indent }}
+{% endif %}
+spec:
+{% if kubernetes_kanboard_ingress.tls %}
+  tls:
+    {{ kubernetes_kanboard_ingress.tls | to_nice_yaml | indent }}
+{% endif %}
+  rules:
+  - host: {{ kubernetes_kanboard_ingress.host }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{ kubernetes_kanboard_service }}
+          servicePort: 80

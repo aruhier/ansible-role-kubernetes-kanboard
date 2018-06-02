@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ kubernetes_kanboard_deployment }}
+  namespace: {{ kubernetes_kanboard_namespace }}
+  labels:
+    app: {{ kubernetes_kanboard_app }}
+{% if kubernetes_kanboard_deployment_labels %}
+    {{ kubernetes_kanboard_deployment_labels | to_nice_yaml | indent(4) }}
+{% endif %}
+{% if kubernetes_kanboard_deployment_annotations %}
+  annotations:
+    {{ kubernetes_kanboard_deployment_annotations | to_nice_yaml | indent(4) }}
+{% endif %}
+spec:
+  replicas: {{ kubernetes_kanboard_replicas }}
+  revisionHistoryLimit: {{ kubernetes_kanboard_revision_history }}
+  selector:
+    matchLabels:
+      app: {{ kubernetes_kanboard_app }}
+  template:
+    metadata:
+      labels:
+        app: {{ kubernetes_kanboard_app }}
+    spec:
+      containers:
+      - image: {{ kubernetes_kanboard_image }}
+        imagePullPolicy: Always
+        name: kanboard
+        resources:
+          {{ kubernetes_kanboard_resources | to_yaml | indent(10) }}
+        ports:
+        - name: kanboard
+          containerPort: 80
+        livenessProbe:
+          httpGet:
+            path: /
+            port: kanboard
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: {{ kubernetes_kanboard_secret }}
+              key: db_url
+        volumeMounts:
+        - mountPath: /var/www/app/data
+          name: kanboard-data
+          {% if kubernetes_kanboard_data_volume.subPath is defined %}subPath: {{ kubernetes_kanboard_data_volume.subPath }}{% endif %}
+
+{% if kubernetes_kanboard_plugins_volume %}
+        - mountPath: /var/www/app/plugins
+          name: kanboard-plugins
+          {% if kubernetes_kanboard_plugins_volume.subPath is defined %}subPath: {{ kubernetes_kanboard_plugins_volume.subPath }}{% endif %}
+{% endif %}
+
+{% if kubernetes_kanboard_node_selector|default({}) %}
+      nodeSelector:
+        {{ kubernetes_kanboard_node_selector | to_yaml | indent(8) }}
+{% endif %}
+      volumes:
+      - {name: kanboard-data, {{ kubernetes_kanboard_data_volume.definition | to_yaml }}}
+{% if kubernetes_kanboard_plugins_volume %}
+      - {name: kanboard-plugins, {{ kubernetes_kanboard_plugins_volume.definition | to_yaml }}}
+{% endif %}
+      restartPolicy: Always
+status: {}

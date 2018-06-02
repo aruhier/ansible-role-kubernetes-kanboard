@@ -1,0 +1,37 @@
+---
+
+kubernetes_kanboard_image: "kanboard/kanboard:v1.2.4"
+
+kubernetes_kanboard_namespace: "default"
+kubernetes_kanboard_deployment: "kanboard-deployment"
+kubernetes_kanboard_app: "kanboard"
+kubernetes_kanboard_service: "kanboard"
+kubernetes_kanboard_secret: "kanboard"
+
+kubernetes_kanboard_node_selector: {}
+kubernetes_kanboard_replicas: 1
+kubernetes_kanboard_revision_history: 1
+
+kubernetes_kanboard_deployment_labels: {}
+kubernetes_kanboard_deployment_annotations: {}
+
+kubernetes_kanboard_resources:
+  limits:
+    memory: "512Mi"
+  requests:
+    memory: "64Mi"
+
+kubernetes_kanboard_data_volume:
+  description:
+kubernetes_kanboard_plugin_volume: {}
+
+kubernetes_kanboard_setup_ingress: false
+kubernetes_kanboard_ingress:
+  name: "kanboard-ingress"
+  host: "kanboard.example.com"
+  annotations:
+  tls:
+
+kubernetes_kanboard_database_url: ""
+
+# vim: set ts=2 sw=2:
